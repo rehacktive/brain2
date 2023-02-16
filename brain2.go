@@ -30,16 +30,20 @@ func (b *Brain2) processCommand(cmd brain2.Command) {
 
 	var response string
 	var err error
+
+	var request string
 	if cmd.Cmd != "" {
-		response, err = b.openai.DoRequest(cmd.Cmd)
+		request = cmd.Cmd
 	}
 	if cmd.VoiceCmd != "" {
 		transcript, err2 := b.whisper.SendFile(cmd.VoiceCmd)
 		if err2 != nil {
-			log.Println(err)
+			log.Println(err2)
 		}
-		response, err = b.openai.DoRequest(transcript)
+		request = transcript
 	}
+	log.Println("asking for: " + request)
+	response, err = b.openai.DoRequest(request)
 	if err != nil {
 		b.telegram.SendMessage(cmd.From, "error : "+err.Error())
 	} else {
